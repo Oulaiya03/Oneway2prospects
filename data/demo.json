@@ -1,0 +1,35 @@
+{
+  "_comment": "Scenario DEMO fictif. Sert de fixture pour le front (contrat JSON) tant que l'agent n'est pas branche. Jamais de data reelle.",
+  "meeting": { "company": "Nexity", "datetime": "2026-07-14T15:30:00" },
+  "brief": {
+    "company": "Nexity",
+    "bullets": [
+      "Promoteur immobilier, ~8000 collaborateurs, France",
+      "Priorite affichee 2026 : structuration de la donnee client",
+      "Recrute actuellement 5 data engineers (signal)",
+      "Gros comptes : collectivites, bailleurs sociaux (a confirmer)",
+      "Angle pour le commercial : cadrage data + marque employeur tech"
+    ],
+    "audio_text": "Nexity, promoteur immobilier de 8000 personnes. Ils structurent leur donnee client et recrutent 5 data engineers. Bon moment pour parler cadrage data et marque employeur tech."
+  },
+  "tour": [
+    {
+      "name": "Marie Durand", "title": "VP Data", "company": "Nexity",
+      "location": "same_company", "why": "Post LinkedIn sur ses priorites data 2026 + 5 data engineers recrutes",
+      "warm": false, "email": "m.durand@nexity.fr", "phone": "+33 6 00 00 00 01",
+      "hook": "Bonjour Marie, je serai dans vos locaux mardi pour un point avec l'equipe. J'ai vu que vous structurez la donnee et recrutez 5 data engineers : ca vaudrait un cafe de 10 min pendant que je suis sur place. Vous seriez dispo entre 15h et 16h ? Je descends a l'accueil."
+    },
+    {
+      "name": "Julien Faure", "title": "Directeur Marque Employeur", "company": "Nexity",
+      "location": "same_company", "why": "Campagne marque employeur tech en cours (signal)",
+      "warm": true, "email": "j.faure@nexity.fr", "phone": "+33 6 00 00 00 02",
+      "hook": "Bonjour Julien, je passe voir vos equipes mardi. Sur la marque employeur tech, on a un retour terrain qui pourrait vous parler. 10 min a l'accueil entre 15h et 16h, ca vous irait ?"
+    },
+    {
+      "name": "Sophie Bernard", "title": "Head of Digital", "company": "Nexity",
+      "location": "same_building", "why": "Refonte parcours client digital annoncee",
+      "warm": false, "email": "s.bernard@nexity.fr", "phone": "+33 6 00 00 00 03",
+      "hook": "Bonjour Sophie, je serai chez Nexity mardi apres-midi. J'ai vu la refonte du parcours client digital : je serais ravi d'echanger 10 min a l'accueil si vous etes dispo vers 15h30."
+    }
+  ]
+}
