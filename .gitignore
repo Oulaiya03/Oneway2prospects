@@ -21,3 +21,4 @@ out/
 *.log
 npm-debug.log*
 data/signals.json
+data/*.wav
