@@ -9,6 +9,9 @@ web/node_modules/
 *.key
 *.pem
 
+# Sillage : cache de vrais signaux (posts LinkedIn reels -> local only, jamais commite)
+data/signals.json
+
 # next / build
 .next/
 dist/
