@@ -2,15 +2,16 @@
 import "dotenv/config";
 import { runDeskOffer } from "./loop";
 
+// Scenario aligne sur le cache de signaux d'Oulaiya (secteur assurance : Allianz, AXA...).
 const meeting = {
-  company: "Nexity",
-  address: "19 rue de Vienne, 75008 Paris",
+  company: "Allianz France",
+  address: "1 cours Michelet, 92800 Puteaux", // La Defense
   contact_name: "Contact RDV",
   datetime: "2026-07-14T15:30:00",
 };
 const admin = {
-  icp: { titles: ["VP Data", "Head of Digital", "Directeur Marque Employeur"], sectors: ["immobilier"], sizes: ["1000+"] },
-  offer: "conseil data & marque employeur",
+  icp: { titles: ["Directeur Marketing", "Directeur Marque Employeur", "Head of Digital", "DRH"], sectors: ["assurance"], sizes: ["1000+"] },
+  offer: "conseil marque & marque employeur",
 };
 
 console.log("=== RUN AGENT (mock tools) ===\n");

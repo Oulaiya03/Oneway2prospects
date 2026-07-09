@@ -4,6 +4,8 @@
 import "dotenv/config";
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_PROMPT } from "./prompt";
+import { findDecisionMakers } from "../integrations/fullenrich";
+import { getSignalsForCompany } from "../integrations/sillage";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = "claude-sonnet-4-6"; // bon rapport qualite/cout. Swap si besoin.
@@ -29,25 +31,45 @@ const tools: Anthropic.Tool[] = [
   },
 ];
 
-// --- Execution des tools : MOCK pour l'instant. TODO Dev A : brancher integrations/* ---
+// --- Execution des tools : les VRAIS integrations (Oulaiya). try/catch -> la demo ne crashe jamais. ---
 async function runTool(name: string, input: any): Promise<any> {
-  if (name === "fullenrich_people") {
-    // TODO: import { searchPeople, startEnrich, getEnrichResult } from "../integrations/fullenrich";
-    return [
-      { name: "Marie Durand", title: "VP Data", email: "m.durand@nexity.fr", phone: "+33600000001" },
-      { name: "Julien Faure", title: "Directeur Marque Employeur", email: "j.faure@nexity.fr", phone: "+33600000002" },
-      { name: "Sophie Bernard", title: "Head of Digital", email: "s.bernard@nexity.fr", phone: "+33600000003" },
-    ];
+  try {
+    if (name === "fullenrich_people") {
+      const raw = await findDecisionMakers(input.company, input.titles ?? []);
+      const seen = new Set<string>();
+      const contacts = raw
+        .map((c) => ({
+          name: `${c.first_name ?? ""} ${c.last_name ?? ""}`.trim(),
+          title: c.title ?? "",
+          email: c.work_email ?? "",
+          phone: c.phone ?? "",
+          email_status: c.email_status ?? "",
+        }))
+        .filter((c) => {
+          const k = (c.email || c.name).toLowerCase();
+          if (!k || seen.has(k)) return false; // dedupe par email (fallback nom)
+          seen.add(k);
+          return true;
+        });
+      console.log(
+        `  -> FullEnrich: ${raw.length} trouves, ${contacts.length} uniques |`,
+        contacts.map((c) => `${c.name} <${c.email || "?"}> [${c.email_status || "?"}]`).join(" ; "),
+      );
+      return contacts;
+    }
+    if (name === "sillage_signals") {
+      return getSignalsForCompany(input.company).map((s) => ({
+        entity: s.person ?? s.company,
+        type: s.type,
+        summary: s.summary,
+        source_url: s.source_url,
+      }));
+    }
+    return { error: `tool inconnu: ${name}` };
+  } catch (e: any) {
+    console.log(`  ! erreur tool ${name}:`, e.message);
+    return { error: e.message }; // l'agent continue avec ce qu'il a
   }
-  if (name === "sillage_signals") {
-    // TODO: import { launchSignalRun, listSignals } from "../integrations/sillage";
-    return [
-      { entity: "Marie Durand", type: "hiring", summary: "Nexity recrute 5 data engineers + post priorites data 2026" },
-      { entity: "Julien Faure", type: "campaign", summary: "campagne marque employeur tech en cours" },
-      { entity: "Sophie Bernard", type: "product", summary: "refonte parcours client digital annoncee" },
-    ];
-  }
-  return { error: `tool inconnu: ${name}` };
 }
 
 export async function runDeskOffer(meeting: Meeting, admin: AdminConfig) {
@@ -110,8 +132,9 @@ function validateResult(r: any) {
       bullets: Array.isArray(r?.brief?.bullets) ? r.brief.bullets : [],
       audio_text: r?.brief?.audio_text ?? "",
     },
-    tour: (Array.isArray(r?.tour) ? r.tour : [])
-      .filter((t: any) => t && (t.email || t.phone)) // uniquement les contacts joignables
+    tour: dedupeByEmail(
+      (Array.isArray(r?.tour) ? r.tour : []).filter((t: any) => t && (t.email || t.phone)),
+    )
       .slice(0, 3) // top 3
       .map((t: any) => ({
         name: t.name ?? "",
@@ -122,7 +145,19 @@ function validateResult(r: any) {
         warm: !!t.warm,
         email: t.email ?? "",
         phone: t.phone ?? "",
+        email_status: t.email_status ?? "",
         hook: t.hook ?? "",
       })),
   };
+}
+
+// Dedoublonnage final du tour par email (fallback nom) -> jamais 2 fois la meme personne.
+function dedupeByEmail(items: any[]) {
+  const seen = new Set<string>();
+  return items.filter((t) => {
+    const k = (t.email || t.name || "").toLowerCase();
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 }
