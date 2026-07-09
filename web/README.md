@@ -1,4 +1,4 @@
-# web/ — Dev C (Oulaiya)
+# web/ — Dev C (Nico)
 
 Le cockpit commercial + l'écran Admin (Next.js).
 

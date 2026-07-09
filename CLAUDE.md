@@ -74,8 +74,8 @@ Oneway2prospects/
 ## 6. Répartition à 3 (qui code quoi)
 
 - **Dev A (Johanna)** : `agent/` -> la boucle + le system prompt + brancher les tools. Vise le chemin **same-company** en premier.
-- **Dev B (Nicolas Rihana)** : `integrations/` -> les 5 connecteurs, chacun une fonction pure testable seule.
-- **Dev C (Oulaiya)** : `web/` -> les écrans + **NextAuth (token Graph)** + l'appel à `/api/run`.
+- **Dev B (Oulaiya)** : `integrations/` -> les 5 connecteurs, chacun une fonction pure testable seule.
+- **Dev C (Nico)** : `web/` -> les écrans + **NextAuth (token Graph)** + l'appel à `/api/run`.
 - **Nicolas Daveux** : business -> scénario démo, pitch, slides Gamma, vidéo, posts viraux (pas de code).
 
 **Le contrat qui vous relie = le JSON de sortie de l'agent (section 10).** Dev C code contre ce format pendant que Dev A/B le remplissent -> zéro blocage.
