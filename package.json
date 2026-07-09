@@ -8,6 +8,7 @@
     "test:sillage": "tsx integrations/test-sillage.ts",
     "test:discovery": "tsx integrations/test-discovery.ts",
     "test:gradium": "tsx integrations/test-gradium.ts",
+    "test:graph": "tsx integrations/test-graph.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
