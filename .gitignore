@@ -16,6 +16,10 @@ data/signals.json
 data/*.wav
 *.wav
 
+# Folk : base warm CRM REELLE (data interne Mantu -> local only, JAMAIS commite)
+data/folk-people.csv
+data/*.csv
+
 # next / build
 .next/
 dist/
