@@ -97,16 +97,21 @@ export async function runDeskOffer(meeting: Meeting, admin: AdminConfig) {
   ];
 
   for (let step = 0; step < 8; step++) {
-    const res = await client.messages.create({
-      model: MODEL,
-      max_tokens: 2000,
-      system: SYSTEM_PROMPT,
-      tools,
-      messages,
-    });
+    const res = await client.messages.create(
+      {
+        model: MODEL,
+        max_tokens: 8000, // thinking (2000) + JSON long (jusqu'a 10 prospects) -> large marge
+        thinking: { type: "enabled", budget_tokens: 2000 }, // extended + interleaved thinking
+        system: SYSTEM_PROMPT,
+        tools,
+        messages,
+      },
+      { headers: { "anthropic-beta": "interleaved-thinking-2025-05-14" } },
+    );
 
     // Visualiser ce que fait l'agent
     for (const block of res.content) {
+      if (block.type === "thinking") console.log("[thinking]", ((block as any).thinking ?? "").slice(0, 150));
       if (block.type === "text") console.log("[claude]", block.text.slice(0, 150));
       if (block.type === "tool_use") console.log("[tool_use]", block.name, JSON.stringify(block.input));
     }
@@ -124,15 +129,22 @@ export async function runDeskOffer(meeting: Meeting, admin: AdminConfig) {
       messages.push({ role: "user", content: results });
     } else {
       const text = res.content.filter((b) => b.type === "text").map((b: any) => b.text).join("");
-      return validateResult(safeJson(text));
+      const validated = validateResult(safeJson(text));
+      return await gradeTour(validated); // grading loop (pattern Outcomes)
     }
   }
   throw new Error("runDeskOffer : trop d'iterations");
 }
 
 function safeJson(text: string) {
-  const m = text.match(/\{[\s\S]*\}/);
-  return m ? JSON.parse(m[0]) : { raw: text };
+  const cleaned = text.replace(/```json/gi, "").replace(/```/g, ""); // enleve les fences markdown
+  const m = cleaned.match(/\{[\s\S]*\}/);
+  if (!m) return { raw: text };
+  try {
+    return JSON.parse(m[0]);
+  } catch {
+    return { raw: text }; // JSON tronque/invalide -> tour vide, pas de crash
+  }
 }
 
 // Garantit que la sortie respecte TOUJOURS le contrat (section 10 du CLAUDE.md).
@@ -177,4 +189,34 @@ function dedupeByEmail(items: any[]) {
     seen.add(k);
     return true;
   });
+}
+
+// --- Grading loop (pattern Anthropic "Outcomes") ---
+// Un 2e agent relit UNIQUEMENT les hooks contre un rubric et reecrit les faibles.
+async function gradeTour(result: any): Promise<any> {
+  if (!result?.tour?.length) return result;
+  const rubric =
+    "cafe informel (PAS un pitch ni une offre) ; ancre sur le signal (why) ; aucun fait invente ; en francais ; ask soft (ex: 10 min a l'accueil) ; 3-4 phrases max.";
+  const items = result.tour.map((t: any, i: number) => ({ i, name: t.name, why: t.why, hook: t.hook }));
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 4000,
+      system: `Tu es un agent CORRECTEUR (pattern Outcomes). Tu lis UNIQUEMENT les hooks + le rubric et tu renvoies une version amelioree de chaque hook qui respecte le rubric.\nRUBRIC: ${rubric}\nReponds UNIQUEMENT en JSON strict: {"hooks":[{"i":0,"hook":"..."}]}`,
+      messages: [{ role: "user", content: JSON.stringify(items) }],
+    });
+    const text = res.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
+    const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? "{}");
+    let fixed = 0;
+    for (const h of parsed.hooks ?? []) {
+      if (result.tour[h.i] && h.hook) {
+        result.tour[h.i].hook = h.hook;
+        fixed++;
+      }
+    }
+    console.log(`  -> grading loop : ${fixed} hooks revus`);
+  } catch (e: any) {
+    console.log("  ! grading loop ignore:", e.message);
+  }
+  return result;
 }
