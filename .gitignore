@@ -22,3 +22,10 @@ out/
 npm-debug.log*
 data/signals.json
 data/*.wav
+
+# Folk : base warm CRM REELLE (data interne -> jamais commite)
+data/*.csv
+data/folk-people.csv
+
+# Config locale Claude
+.claude/

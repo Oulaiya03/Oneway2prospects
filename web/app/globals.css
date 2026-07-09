@@ -1,20 +1,24 @@
 @import "tailwindcss";
 
-/* ---- Design tokens : neutres froids, produit SaaS ---- */
+/* Charte Agence Mantu 2026 — Space Grotesk chargée via next/font (layout.tsx) */
+/* ---- Design tokens : charte Mantu 2026 (violet + rose) ---- */
 @theme {
-  --color-paper: #f3f4f6;
+  --color-paper: #f6f5f8;
   --color-surface: #ffffff;
-  --color-raised: #fbfcfd;
-  --color-ink: #14161b;
-  --color-stone: #585f6d;
-  --color-faint: #6b7280;
-  --color-line: #e8eaee;
-  --color-line-strong: #d5d9e0;
+  --color-raised: #fbfafd;
+  --color-ink: #1f1f1f;
+  --color-stone: #545454;
+  --color-faint: #7a7580;
+  --color-line: #ece9f1;
+  --color-line-strong: #d8d3e0;
 
-  --color-pine: #0c6b52;
-  --color-pine-deep: #084f3c;
-  --color-pine-soft: #e2f0ec;
-  --color-pine-ring: #b7dccf;
+  /* Accent = Mantu Purple 2026 ; hover = violet lumineux ; soft = lavande ; rose = highlight */
+  --color-pine: #2b0058;
+  --color-pine-deep: #4e2bcd;
+  --color-pine-soft: #efe7fb;
+  --color-pine-ring: #c9b8f0;
+  --color-pink: #ffd6ff;
+  --color-pink-light: #fff9fe;
 
   --color-hot: #d8492a;
   --color-hot-soft: #fbe6e0;
@@ -30,8 +34,8 @@
 }
 
 @theme inline {
-  --font-display: var(--font-geist);
-  --font-body: var(--font-geist);
+  --font-display: var(--font-space), var(--font-geist);
+  --font-body: var(--font-space), var(--font-geist);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -65,7 +69,17 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(16, 18, 23, 0.04);
+  box-shadow: 0 1px 2px rgba(43, 0, 88, 0.05);
+}
+
+/* Capsule rose : device signature Mantu (pilule qui entoure un mot-clé) */
+.capsule {
+  background: var(--color-pink);
+  color: var(--color-pine);
+  border-radius: 100px;
+  padding: 0.05em 0.5em;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* ---- Focus visible ---- */

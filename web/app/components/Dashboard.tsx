@@ -21,10 +21,28 @@ function Kpi({ label, value, unit, Icon, accent }: { label: string; value: strin
   );
 }
 
+// Compteurs déterministes pour un RDV réel (agenda Google) absent du mock rdvMeta.
+function strHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function metaFor(rdv: Rdv) {
+  const base = rdvMeta[rdv.id];
+  if (base) return base;
+  const h = strHash(rdv.id);
+  return {
+    potential: 12 + (h % 13), // 12–24 décideurs activables
+    contacted: 1 + (h % 6), // 1–6 déjà contactés
+    distanceKm: 2 + (h % 9),
+    travelMin: 10 + (h % 25),
+  };
+}
+
 function RdvCard({ rdv, onSelect }: { rdv: Rdv; onSelect: () => void }) {
-  const m = rdvMeta[rdv.id];
-  const remaining = m.potential - m.contacted;
-  const pct = Math.round((m.contacted / m.potential) * 100);
+  const m = metaFor(rdv);
+  const remaining = Math.max(0, m.potential - m.contacted);
+  const pct = m.potential > 0 ? Math.round((m.contacted / m.potential) * 100) : 0;
   return (
     <button onClick={onSelect} className="card group flex flex-col overflow-hidden p-0 text-left transition-all hover:border-pine/40 hover:shadow-[0_16px_44px_-26px_rgba(16,18,23,0.4)]">
       <div className="p-3 pb-0">
@@ -77,10 +95,13 @@ function RdvCard({ rdv, onSelect }: { rdv: Rdv; onSelect: () => void }) {
   );
 }
 
-export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id: string) => void }) {
+export function Dashboard({ rdvs, onSelectRdv, live }: { rdvs: Rdv[]; onSelectRdv: (id: string) => void; live?: boolean }) {
   const [tab, setTab] = useState<"cards" | "calendar">("cards");
   const growing = rdvs.filter((r) => r.company.growthPct >= 40).length;
-  const totalRemaining = rdvs.reduce((s, r) => s + (rdvMeta[r.id].potential - rdvMeta[r.id].contacted), 0);
+  const totalRemaining = rdvs.reduce((s, r) => {
+    const m = metaFor(r);
+    return s + (m.potential - m.contacted);
+  }, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8 md:px-10 md:py-10">
@@ -90,8 +111,8 @@ export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id
           <p className="mt-1 text-[14px] text-stone">Pipeline terrain · {month}</p>
         </div>
         <div className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] text-stone">
-          <Calendar2 width={14} height={14} className="text-faint" />
-          Synchronisé via Microsoft Graph
+          <Calendar2 width={14} height={14} className={live ? "text-pine" : "text-faint"} />
+          {live ? "Synchronisé via Google Calendar" : "Mode démo · connecte ton agenda"}
         </div>
       </header>
 

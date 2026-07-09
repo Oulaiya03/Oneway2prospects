@@ -1,5 +1,6 @@
 "use client";
 
+import { signIn, signOut, useSession } from "next-auth/react";
 import { Home, Users, Send, Route, BarChart, Bolt, FileText } from "./icons";
 
 export type View = "dashboard" | "prospects" | "sequence" | "brief" | "tournee" | "stats";
@@ -15,6 +16,47 @@ const PILOTAGE: { id: View; label: string; sub: string; Icon: typeof Home }[] = 
   { id: "tournee", label: "Tournée", sub: "itinéraire du jour", Icon: Route },
   { id: "stats", label: "Statistiques", sub: "performance", Icon: BarChart },
 ];
+
+// Bloc compte : login Google réel (sinon fallback démo "Nicolas Martin").
+function AccountBox() {
+  const { data: session, status } = useSession();
+
+  if (status === "authenticated" && session?.user) {
+    const initials = (session.user.name ?? session.user.email ?? "?")
+      .split(/\s+/)
+      .map((s) => s[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+    return (
+      <div className="hidden items-center gap-3 border-t border-line px-5 py-3.5 md:flex">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pine text-[12px] font-medium text-white">
+          {initials}
+        </span>
+        <div className="min-w-0 flex-1 leading-tight">
+          <div className="truncate text-[12.5px] font-medium text-ink">{session.user.name ?? session.user.email}</div>
+          <div className="text-[11.5px] text-pine">Agenda Google connecté</div>
+        </div>
+        <button onClick={() => signOut()} className="text-[11px] text-faint hover:text-ink" title="Se déconnecter">
+          Sortir
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="hidden flex-col gap-2 border-t border-line px-5 py-3.5 md:flex">
+      <button
+        onClick={() => signIn("google")}
+        className="inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] font-medium text-ink transition-colors hover:bg-paper"
+      >
+        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-pine text-[10px] text-white">G</span>
+        {status === "loading" ? "…" : "Se connecter avec Google"}
+      </button>
+      <span className="text-center text-[10.5px] text-faint">Mode démo — connecte ton agenda</span>
+    </div>
+  );
+}
 
 export function Sidebar({
   view,
@@ -81,13 +123,7 @@ export function Sidebar({
         </nav>
       </div>
 
-      <div className="hidden items-center gap-3 border-t border-line px-5 py-3.5 md:flex">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-[12px] font-medium text-paper">NM</span>
-        <div className="leading-tight">
-          <div className="text-[12.5px] font-medium text-ink">Nicolas Martin</div>
-          <div className="text-[11.5px] text-faint">Commercial · Amaris</div>
-        </div>
-      </div>
+      <AccountBox />
     </aside>
   );
 }
