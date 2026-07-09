@@ -425,7 +425,7 @@ export type Step = {
 };
 
 export const steps: Step[] = [
-  { id: "s1", tool: "Graph", action: "Lecture de l'agenda Outlook via Microsoft Graph", result: "RDV physique · {dayLong} {time} · {company}", ms: 1000 },
+  { id: "s1", tool: "Graph", action: "Lecture de l'agenda — RDV physiques (Google Agenda)", result: "RDV physique · {dayLong} {time} · {company}", ms: 1000 },
   { id: "s2", tool: "Claude", action: "Identification du compte via le domaine du contact", result: "{domain} → {company} · {sector}", ms: 950 },
   { id: "s3", tool: "FullEnrich", action: "Cartographie du compte — décideurs M-level & C-level", result: "18 décideurs · emails vérifiés · téléphones directs", ms: 1500 },
   { id: "s4", tool: "Sillage", action: "Détection des signaux d'intention", result: "signaux rattachés · recrutement, levée, réorg", ms: 1300 },

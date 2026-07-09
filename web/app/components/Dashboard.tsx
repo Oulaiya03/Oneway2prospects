@@ -4,6 +4,7 @@ import { useState } from "react";
 import { type Rdv, month, monthStats, rdvMeta } from "@/lib/mock";
 import { TripMap } from "./TripMap";
 import { CalendarView } from "./CalendarView";
+import { GoogleConnect } from "./GoogleConnect";
 import { MapPin, ArrowRight, Calendar2, Users, TrendingUp, Bolt, Grid } from "./icons";
 
 function Kpi({ label, value, unit, Icon, accent }: { label: string; value: string; unit?: string; Icon: typeof Users; accent?: boolean }) {
@@ -89,10 +90,7 @@ export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id
           <h1 className="text-[24px] font-semibold tracking-tight text-ink">Tableau de bord</h1>
           <p className="mt-1 text-[14px] text-stone">Pipeline terrain · {month}</p>
         </div>
-        <div className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] text-stone">
-          <Calendar2 width={14} height={14} className="text-faint" />
-          Synchronisé via Microsoft Graph
-        </div>
+        <GoogleConnect />
       </header>
 
       <div className="anim-fadeup mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4" style={{ animationDelay: "60ms" }}>
