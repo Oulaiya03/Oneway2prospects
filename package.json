@@ -1,0 +1,20 @@
+{
+  "name": "oneway2prospects-core",
+  "private": true,
+  "type": "module",
+  "description": "Agent (Dev A) + integrations (Dev B). Le front Next.js vit dans web/ (son propre package.json).",
+  "scripts": {
+    "test:fe": "tsx integrations/test-fullenrich.ts",
+    "test:sillage": "tsx integrations/test-sillage.ts",
+    "test:discovery": "tsx integrations/test-discovery.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
