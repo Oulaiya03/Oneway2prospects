@@ -50,7 +50,7 @@ export async function getGoogleMeetings(accessToken: string, fromISO: string, to
         company: domain ? companyFromDomain(domain) : undefined,
         domain: domain || undefined,
         address: String(e.location ?? ""),
-        contact_name: ext?.displayName || undefined,
+        contact_name: ext?.displayName || ext?.email || undefined,
         datetime: start?.dateTime ?? start?.date ?? "",
       };
     });
@@ -93,3 +93,7 @@ export async function createGmailDraft(
   const j = await r.json();
   return { id: String(j.id ?? "") };
 }
+
+// Alias de compatibilité : l'autre branche nommait ces fonctions getPhysicalMeetings / createDraft.
+export const getPhysicalMeetings = getGoogleMeetings;
+export const createDraft = createGmailDraft;
