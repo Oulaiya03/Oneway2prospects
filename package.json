@@ -7,6 +7,7 @@
     "test:fe": "tsx integrations/test-fullenrich.ts",
     "test:sillage": "tsx integrations/test-sillage.ts",
     "test:discovery": "tsx integrations/test-discovery.ts",
+    "test:gradium": "tsx integrations/test-gradium.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

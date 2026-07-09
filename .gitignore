@@ -12,6 +12,10 @@ web/node_modules/
 # Sillage : cache de vrais signaux (posts LinkedIn reels -> local only, jamais commite)
 data/signals.json
 
+# Gradium : fichiers audio generes (artefacts, local only)
+data/*.wav
+*.wav
+
 # next / build
 .next/
 dist/
