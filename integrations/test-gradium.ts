@@ -6,10 +6,10 @@ import { textToSpeech } from "./gradium";
 
 const TEXT =
   process.argv[2] ??
-  "Allianz France, assureur majeur basé à La Défense. Vous avez rendez-vous avec Viviane Lindenmann, responsable marque employeur, sur la refonte du site carrière. Bon moment pour y aller : Allianz communique activement sur sa marque employeur et son recrutement.";
+  "Allianz France is a major insurer based in La Defense, Paris. You have a meeting with Viviane Lindenmann, their Employer Brand Manager, about redesigning the careers website. Great timing: Allianz is actively promoting its employer brand and hiring right now, so there is real appetite for this conversation.";
 
 async function main() {
-  console.log("Génération audio (Gradium TTS, voix FR Marie)...");
+  console.log("Generating audio (Gradium TTS, EN flagship voice Emma, human settings)...");
   const r = await textToSpeech(TEXT);
   const out = "data/brief-allianz.wav";
   writeFileSync(out, Buffer.from(r.audioBase64, "base64"));
