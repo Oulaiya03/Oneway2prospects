@@ -18,7 +18,7 @@ Never invent these. They come from the trigger and the Admin console.
   sillage_v2_enrich_company, sillage_v2_launch_signal_run, sillage_v2_list_signals
 - FullEnrich (contacts): people search + enrich -> verified work email + phone, company/org data
 - Folk (warm CRM): search_contacts -> is this person/company already known?
-- Discovery (neighbors): gouv_search(address, radius) + maps_geocode
+- Discovery: neighbors(address) -> same_building (meme immeuble) + nearby (quartier), via API Gouv
 - Delivery: create_draft(to, subject, body)  # Outlook/Gmail, DRAFT only
 - Gradium TTS (optional): text_to_speech(text) -> audio for the company brief
 
@@ -26,7 +26,7 @@ Never invent these. They come from the trigger and the Admin console.
 1. SAME COMPANY (top priority): via FullEnrich org map + sillage_v2_enrich_company,
    list OTHER key decision-makers at meeting.company matching icp. Account strategy:
    warmest, easiest second meetings (social proof from the first contact).
-2. NEIGHBORS: gouv_search(meeting.address, radius=400m) -> nearby companies; keep icp matches.
+2. NEIGHBORS (bonus, AFTER same-company): call neighbors(meeting.address) -> same_building + nearby companies. Keep only icp matches. Enrich AT MOST 1-2 of them (prioritize same_building) via fullenrich_people to get a real contact. Do NOT enrich more (credits). Set location = same_building | nearby on these.
 3. SIGNALS: for candidate accounts, get a FRESH trigger via Sillage
    (list_signals / launch_signal_run): job change, hiring, funding, competitor, leadership change.
 4. ENRICH: FullEnrich the chosen people -> verified email + phone. Drop anyone unverifiable.

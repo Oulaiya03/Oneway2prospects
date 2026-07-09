@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_PROMPT } from "./prompt";
 import { findDecisionMakers } from "../integrations/fullenrich";
 import { getSignalsForCompany } from "../integrations/sillage";
+import { prospectsGrouped } from "../integrations/discovery";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = "claude-sonnet-4-6"; // bon rapport qualite/cout. Swap si besoin.
@@ -28,6 +29,12 @@ const tools: Anthropic.Tool[] = [
     name: "sillage_signals",
     description: "Signaux d'intent recents sur une entreprise et ses decideurs.",
     input_schema: { type: "object", properties: { company: { type: "string" } }, required: ["company"] },
+  },
+  {
+    name: "neighbors",
+    description:
+      "Boites voisines du RDV : meme immeuble d'abord (same_building), puis quartier (nearby). A utiliser APRES le same-company pour elargir la tournee.",
+    input_schema: { type: "object", properties: { address: { type: "string" } }, required: ["address"] },
   },
 ];
 
@@ -64,6 +71,15 @@ async function runTool(name: string, input: any): Promise<any> {
         summary: s.summary,
         source_url: s.source_url,
       }));
+    }
+    if (name === "neighbors") {
+      const g = await prospectsGrouped(input.address);
+      const log = `same_building=${g.same_building.length} nearby=${g.nearby.length}`;
+      console.log(`  -> neighbors (${input.address}): ${log}`);
+      return {
+        same_building: g.same_building.slice(0, 5).map((n) => ({ company: n.name, distance_m: n.distance_m, address: n.address })),
+        nearby: g.nearby.slice(0, 5).map((n) => ({ company: n.name, distance_m: n.distance_m })),
+      };
     }
     return { error: `tool inconnu: ${name}` };
   } catch (e: any) {
