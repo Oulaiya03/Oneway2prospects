@@ -18,6 +18,15 @@ npm i next-auth
 - `app/api/auth/[...nextauth]/route.ts` — NextAuth provider Azure AD -> récupère l'access_token Graph
 - `app/api/run/route.ts` — reçoit un meetingId, appelle `agent/loop.ts` runDeskOffer(), renvoie le JSON
 
+## Snippets prêts (dans `web/snippets/`)
+Code déjà écrit pour le login Microsoft + les appels Graph. Après `create-next-app` :
+- `snippets/nextauth-route.ts` -> copier dans `app/api/auth/[...nextauth]/route.ts` (login + token Graph)
+- `snippets/graph-run.ts` -> copier dans `app/api/run/route.ts` (lire agenda physique + créer draft)
+- deps : `npm i next-auth`
+- Remplir les clés Azure AD dans `.env` (voir `.env.example`). `tenantId = "common"` pour comptes perso (évite l'admin consent).
+
+Note : si `create-next-app .` râle à cause du dossier `snippets/`, déplace-le 2 min (`mv snippets /tmp`), init, puis remets-le.
+
 ## Astuce
 Code contre `../data/demo.json` (le contrat JSON) tant que l'agent n'est pas prêt -> tu n'attends personne.
 Scopes Graph : `openid profile email offline_access User.Read Calendars.Read Mail.ReadWrite`.
