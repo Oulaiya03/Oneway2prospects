@@ -6,6 +6,7 @@
   "scripts": {
     "test:fe": "tsx integrations/test-fullenrich.ts",
     "test:sillage": "tsx integrations/test-sillage.ts",
+    "test:discovery": "tsx integrations/test-discovery.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
