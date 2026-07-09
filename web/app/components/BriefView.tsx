@@ -35,10 +35,12 @@ export function BriefView({
 }) {
   const [fmt, setFmt] = useState<Format>("onepager");
   const [sent, setSent] = useState<Format | null>(null);
+  const [playing, setPlaying] = useState(false);
 
-  const email = emailFor(prospect, rdv.company.domain);
+  const email = prospect.email ?? emailFor(prospect, rdv.company.domain);
   const openness = scoreOne({ offer: prospect.offer, company: prospect.company, zone: prospect.zone, intent: intentOf(prospect) }).openness;
   const recent = prospect.signal ?? "Pas de signal récent";
+  const tenureLabel = `${prospect.tenure} an${prospect.tenure > 1 ? "s" : ""} dans l'entreprise`;
 
   const wa = [
     `*Brief RDV — ${prospect.first} ${prospect.last} (${rdv.company.name})*`,
@@ -61,7 +63,16 @@ export function BriefView({
       ? { label: "Télécharger le PDF", Icon: Download }
       : fmt === "whatsapp"
       ? { label: "Envoyer sur WhatsApp", Icon: MessageCircle }
-      : { label: "Envoyer le vocal dans l'inbox", Icon: Volume };
+      : { label: "Livrer le vocal au commercial", Icon: Volume };
+
+  // Chaque format déclenche une VRAIE action : impression (→ PDF), lien WhatsApp pré-rempli, ou livraison.
+  const runAction = () => {
+    if (typeof window !== "undefined") {
+      if (fmt === "onepager") window.print();
+      else if (fmt === "whatsapp") window.open(`https://wa.me/?text=${encodeURIComponent(wa)}`, "_blank", "noopener,noreferrer");
+    }
+    setSent(fmt);
+  };
 
   return (
     <>
@@ -77,18 +88,20 @@ export function BriefView({
 
         {/* Sélecteur de format */}
         <div className="anim-fadeup mb-5 flex flex-wrap items-center gap-2" style={{ animationDelay: "40ms" }}>
-          <div className="inline-flex rounded-lg border border-line bg-surface p-0.5">
+          <div className="inline-flex rounded-lg border border-line bg-surface p-0.5" role="tablist" aria-label="Format de livraison">
             {FORMATS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setFmt(f.id)}
+                role="tab"
+                aria-selected={fmt === f.id}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-medium transition-colors ${fmt === f.id ? "bg-pine-soft text-pine" : "text-stone hover:text-ink"}`}
               >
                 <f.Icon width={14} height={14} /> {f.label}
               </button>
             ))}
           </div>
-          <span className="text-[12px] text-faint">Généré par l&apos;agent · Graduim</span>
+          <span className="text-[12px] text-faint">Généré par l&apos;agent · Gradium</span>
         </div>
 
         {/* ONE-PAGER */}
@@ -122,11 +135,11 @@ export function BriefView({
                   <Users width={13} height={13} /> Contact
                 </div>
                 <Field label="Email">{email}</Field>
-                <Field label="Téléphone">{prospect.phone}</Field>
+                <Field label="Téléphone">{prospect.phone || "—"}</Field>
                 <Field label="LinkedIn">
                   linkedin.com/in/{prospect.first.toLowerCase()}-{prospect.last.toLowerCase()}
                 </Field>
-                <Field label="Ancienneté">{prospect.tenure} ans dans l&apos;entreprise</Field>
+                <Field label="Ancienneté">{tenureLabel}</Field>
               </div>
 
               {/* Entreprise */}
@@ -208,43 +221,52 @@ export function BriefView({
         {fmt === "vocal" && (
           <div className="anim-fadeup card p-5">
             <div className="flex items-center gap-3 rounded-xl border border-line bg-raised px-4 py-3">
-              <button aria-label="Écouter le brief vocal" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pine text-white">
+              <button
+                onClick={() => setPlaying((p) => !p)}
+                aria-label={playing ? "Mettre en pause le brief vocal" : "Écouter le brief vocal"}
+                aria-pressed={playing}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-pine text-white transition-transform hover:scale-105"
+              >
                 <Volume width={20} height={20} />
               </button>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[13.5px] font-medium text-ink">Note vocale · brief {prospect.first} {prospect.last}</span>
-                  <span className="rounded bg-pine-soft px-1.5 py-0.5 text-[10px] font-medium text-pine">Graduim</span>
+                  <span className="rounded bg-pine-soft px-1.5 py-0.5 text-[10px] font-medium text-pine">Gradium</span>
                 </div>
-                {/* faux waveform */}
+                {/* waveform */}
                 <div className="mt-2 flex items-center gap-[3px]">
                   {[8, 14, 6, 18, 11, 22, 9, 16, 7, 20, 12, 24, 8, 15, 6, 19, 10, 21, 7, 13, 9, 17, 6, 11].map((h, i) => (
-                    <span key={i} className="w-[3px] rounded-full bg-pine/40" style={{ height: h }} />
+                    <span
+                      key={i}
+                      className="w-[3px] rounded-full bg-pine/40"
+                      style={{ height: h, opacity: playing ? 1 : 0.55 }}
+                    />
                   ))}
                 </div>
               </div>
-              <span className="shrink-0 font-mono text-[12px] text-stone">1:12</span>
+              <span className="shrink-0 font-mono text-[12px] text-stone">{playing ? "en lecture…" : "1:12"}</span>
             </div>
             <p className="mt-3 text-[13px] leading-relaxed text-stone">
               « Salut Nicolas — dans 5 minutes tu vois {prospect.first} {prospect.last}, {prospect.role} chez {rdv.company.name}.
               Le point d&apos;accroche : {recent.toLowerCase()}. Ton angle : {offer.oneLiner.toLowerCase()} Propose-lui une visio
               de 30 min, tu as trois créneaux. Bonne chance ! »
             </p>
-            <p className="mt-2 text-[12px] text-faint">À écouter sur le trajet · livré dans ton inbox.</p>
+            <p className="mt-2 text-[12px] text-faint">À écouter sur le trajet, juste avant d&apos;entrer en RDV.</p>
           </div>
         )}
 
         {/* Action d'export */}
         <div className="anim-fadeup mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3">
           <span className="text-[12.5px] text-stone">
-            {sent ? "Livré au commercial — disponible dans l'inbox." : "Choisis le format de livraison pour le commercial."}
+            {sent ? "Format prêt — livré au commercial." : "Choisis le format de livraison pour le commercial."}
           </span>
           <button
-            onClick={() => setSent(fmt)}
+            onClick={runAction}
             className="inline-flex items-center gap-2 rounded-lg bg-pine px-4 py-2.5 text-[13.5px] font-medium text-white transition-colors hover:bg-pine-deep"
           >
             {sent === fmt ? <Check width={16} height={16} /> : <action.Icon width={16} height={16} />}
-            {sent === fmt ? "Envoyé" : action.label}
+            {sent === fmt ? "Prêt ✓" : action.label}
           </button>
         </div>
       </div>

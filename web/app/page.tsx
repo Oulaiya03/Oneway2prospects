@@ -46,6 +46,8 @@ export default function Home() {
 
   const selectRdv = (id: string) => {
     setRdvId(id);
+    setSelectedIds([]); // reset du flux : pas de fuite de la sélection d'un autre compte
+    setBriefId(null);
     setView("prospects");
     startRun();
   };

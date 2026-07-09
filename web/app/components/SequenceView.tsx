@@ -14,6 +14,8 @@ function ChannelIcon({ channel, ...rest }: { channel: Channel; width?: number; h
 
 function TouchCard({ touch, approved, onApprove }: { touch: Touch; approved: boolean; onApprove: () => void }) {
   const meta = CHANNEL_META[touch.channel];
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(() => touch.content.join("\n\n"));
   return (
     <div className={`card overflow-hidden ${approved ? "ring-1 ring-pine/25" : ""}`}>
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2.5">
@@ -68,6 +70,19 @@ function TouchCard({ touch, approved, onApprove }: { touch: Touch; approved: boo
         )}
       </div>
 
+      {editing && (
+        <div className="border-t border-line px-4 py-3">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={6}
+            aria-label="Modifier le message de la touche"
+            className="w-full resize-y rounded-md border border-pine/40 bg-surface px-2.5 py-2 text-[13px] leading-relaxed text-ink outline-none focus:border-pine"
+          />
+          <p className="mt-1 text-[11px] text-faint">Édite le message, puis « Terminer ».</p>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 border-t border-line px-4 py-2.5">
         {approved ? (
           <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-pine">
@@ -78,8 +93,12 @@ function TouchCard({ touch, approved, onApprove }: { touch: Touch; approved: boo
             <Check width={14} height={14} /> Valider cette touche
           </button>
         )}
-        <button className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-stone transition-colors hover:border-line-strong hover:text-ink">
-          Modifier
+        <button
+          onClick={() => setEditing((e) => !e)}
+          aria-pressed={editing}
+          className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-stone transition-colors hover:border-line-strong hover:text-ink"
+        >
+          {editing ? "Terminer" : "Modifier"}
         </button>
       </div>
     </div>

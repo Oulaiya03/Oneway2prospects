@@ -1,4 +1,4 @@
-// Moteur de score d'ouverture (Graduim) — reste en BACKEND.
+// Moteur de score d'ouverture (front DeskOffer) — source de vérité du score côté cockpit.
 // Ouverture = combinaison pondérée de 4 axes : offre × compagnie × intent (Sillage) × zone.
 // L'intent provient des signaux Sillage : sa présence et sa fraîcheur pèsent dans le score.
 

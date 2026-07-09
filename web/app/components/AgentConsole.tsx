@@ -9,7 +9,7 @@ const TOOL_COLOR: Record<ToolName, string> = {
   Outlook: "#6ea8ff",
   Claude: "#e6a06a",
   FullEnrich: "#74d3a4",
-  Graduim: "#63c8d6",
+  Gradium: "#63c8d6",
   Sillage: "#e8c250",
   HeyReach: "#8fa9ff",
 };
@@ -56,7 +56,9 @@ export function AgentConsole({
   const reduce = usePrefersReducedMotion();
   const endRef = useRef<HTMLDivElement | null>(null);
   const doneRef = useRef(onDone);
-  doneRef.current = onDone;
+  useEffect(() => {
+    doneRef.current = onDone;
+  });
 
   useEffect(() => {
     if (!running) return;

@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
+import { join } from "node:path";
 
 const nextConfig: NextConfig = {
-  // web/ est la racine du projet Next (évite l'inférence sur les lockfiles parents
-  // et la génération de fichiers parasites à la racine du monorepo).
-  turbopack: { root: __dirname },
+  // Racine = racine du monorepo (parent de web/), pour que Next/Turbopack transpile
+  // agent/ et integrations/ importés par web/app/api/run (câblage front ↔ back réel).
+  turbopack: { root: join(__dirname, "..") },
 };
 
 export default nextConfig;

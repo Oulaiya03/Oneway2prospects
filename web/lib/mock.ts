@@ -1,7 +1,7 @@
 // Données de démonstration DeskOffer.
 import type { Heat } from "./scoring";
 
-export type ToolName = "Graph" | "Outlook" | "FullEnrich" | "Graduim" | "Sillage" | "Claude" | "HeyReach";
+export type ToolName = "Graph" | "Outlook" | "FullEnrich" | "Gradium" | "Sillage" | "Claude" | "HeyReach";
 
 export const month = "Juillet 2026";
 export const monthStats = { planned: 8, potential: 24 };
@@ -375,6 +375,11 @@ export type Prospect = {
   signal?: string;
   signalAge?: string;
   phone: string;
+  // Champs réels quand les données viennent de l'agent (sinon dérivés du mock).
+  email?: string; // email vérifié (FullEnrich) — sinon calculé via emailFor()
+  emailStatus?: string; // délivrabilité FullEnrich (DELIVERABLE, HIGH_PROBABILITY…)
+  hook?: string; // message café rédigé par l'agent
+  recommended?: boolean; // top-3 recommandé par l'agent (à voir sur place)
 };
 
 // 18 décideurs M-level et C-level. Signaux formulés sans nom d'entreprise (réutilisables).
@@ -424,7 +429,7 @@ export const steps: Step[] = [
   { id: "s2", tool: "Claude", action: "Identification du compte via le domaine du contact", result: "{domain} → {company} · {sector}", ms: 950 },
   { id: "s3", tool: "FullEnrich", action: "Cartographie du compte — décideurs M-level & C-level", result: "18 décideurs · emails vérifiés · téléphones directs", ms: 1500 },
   { id: "s4", tool: "Sillage", action: "Détection des signaux d'intention", result: "signaux rattachés · recrutement, levée, réorg", ms: 1300 },
-  { id: "s5", tool: "Graduim", action: "Score d'ouverture — offre × compagnie × intent (Sillage) × zone", result: "18 prospects scorés · signal Sillage pondéré à 25 %", ms: 1400 },
+  { id: "s5", tool: "Gradium", action: "Fiche de brief en audio (TTS) — prête pour le trajet", result: "note vocale générée · à écouter avant le RDV", ms: 1400 },
 ];
 
 // Cadence multi-touch générée par prospect + contexte du RDV.
@@ -534,7 +539,7 @@ export const statKpis = [
   { label: "Prospects contactés", value: "128", delta: "+18%", up: true },
   { label: "Taux d'ouverture", value: "62%", delta: "+4 pts", up: true },
   { label: "Taux de réponse", value: "24%", delta: "+3 pts", up: true },
-  { label: "RDV générés", value: "14", delta: "+5", up: true },
+  { label: "RDV générés", value: "9", delta: "+3", up: true },
 ];
 
 // Entonnoir de conversion (magnitude décroissante).
@@ -811,10 +816,10 @@ export function rdvFromNeighbor(n: Neighbor): Rdv {
   const city = n.address.split(",").pop()?.trim() ?? "Paris";
   return {
     id: n.id,
-    dayShort: "Détour",
-    dayLong: "compte voisin à cartographier",
-    time: "",
-    timeEarly: "",
+    dayShort: "Mar. 14 juil.",
+    dayLong: "mardi 14 juillet",
+    time: "11:00",
+    timeEarly: "10:45",
     contactFirst: parts[0] ?? n.contact.name,
     contactLast: parts.slice(1).join(" "),
     contactRole: n.contact.role,

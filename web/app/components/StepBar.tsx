@@ -53,7 +53,9 @@ export function StepBar({
                   <span className={`block truncate text-[13px] font-medium ${status === "upcoming" ? "text-faint" : "text-ink"}`}>{s.label}</span>
                   <span className="block truncate text-[11px] text-faint">{s.detail}</span>
                 </span>
-                <span className={`text-[13px] font-medium sm:hidden ${status === "upcoming" ? "text-faint" : "text-ink"}`}>{s.label}</span>
+                {status === "active" && (
+                  <span className="text-[13px] font-medium text-ink sm:hidden">{s.label}</span>
+                )}
               </button>
               {i < defs.length - 1 && <span className="h-px flex-1 bg-line" />}
             </div>
