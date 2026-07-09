@@ -1,8 +1,8 @@
 // web/app/api/meetings/route.ts
-// Lit l'agenda Outlook réel (Microsoft Graph) et renvoie les RDV physiques.
-// Si l'utilisateur n'est pas connecté à Microsoft -> { connected:false } (le front bascule sur le mock).
+// Lit l'agenda Google réel (Calendar) et renvoie les RDV physiques.
+// Si l'utilisateur n'est pas connecté à Google -> { connected:false } (le front bascule sur le mock).
 import { getToken } from "next-auth/jwt";
-import { getPhysicalMeetings } from "../../../../integrations/graph";
+import { getGoogleMeetings } from "../../../../integrations/google";
 
 export const runtime = "nodejs";
 
@@ -16,10 +16,10 @@ export async function GET(req: Request) {
     const now = new Date();
     const from = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const to = new Date(now.getTime() + 30 * 864e5).toISOString();
-    const meetings = await getPhysicalMeetings(token, from, to);
+    const meetings = await getGoogleMeetings(token, from, to);
     return Response.json({ ok: true, connected: true, meetings });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "erreur Graph";
+    const message = e instanceof Error ? e.message : "erreur Google Calendar";
     return Response.json({ ok: false, connected: true, error: message, meetings: [] });
   }
 }

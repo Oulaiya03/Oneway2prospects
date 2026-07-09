@@ -1,24 +1,26 @@
 // web/app/api/auth/[...nextauth]/route.ts
-// Login Microsoft (Azure AD) -> récupère le token Graph côté serveur. NextAuth v4.
-// Redirect URI à déclarer côté Azure : http://localhost:3000/api/auth/callback/azure-ad
+// Login Google -> récupère le token (Agenda + Gmail) côté serveur. NextAuth v4.
+// Redirect URI à déclarer côté Google Cloud : http://localhost:3000/api/auth/callback/google
 import NextAuth from "next-auth";
-import AzureADProvider from "next-auth/providers/azure-ad";
+import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
   providers: [
-    AzureADProvider({
-      clientId: process.env.AZURE_AD_CLIENT_ID!,
-      clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-      tenantId: process.env.AZURE_AD_TENANT_ID!,
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          scope: "openid profile email offline_access User.Read Calendars.Read Mail.ReadWrite",
+          scope:
+            "openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.compose",
+          access_type: "offline",
+          prompt: "consent",
         },
       },
     }),
   ],
   callbacks: {
-    // au login : on capte le token Graph dans le JWT (côté serveur)
+    // au login : on capte le token Google dans le JWT (côté serveur)
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
