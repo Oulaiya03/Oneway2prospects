@@ -9,6 +9,7 @@
     "test:discovery": "tsx integrations/test-discovery.ts",
     "test:gradium": "tsx integrations/test-gradium.ts",
     "test:graph": "tsx integrations/test-graph.ts",
+    "test:folk": "tsx integrations/test-folk.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
