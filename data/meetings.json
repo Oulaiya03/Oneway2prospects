@@ -1,0 +1,31 @@
+{
+  "_comment": "Agenda de DEMO (mock, remplace Graph pour la demo). Le web lit ce fichier pour 'Ma semaine'. En prod: Graph calendarView.",
+  "meetings": [
+    {
+      "id": "m1",
+      "company": "Allianz France",
+      "domain": "allianz.fr",
+      "address": "1 cours Michelet, 92800 Puteaux",
+      "contact_name": "Marc Dubois",
+      "datetime": "2026-07-14T15:30:00",
+      "location_type": "physical"
+    },
+    {
+      "id": "m2",
+      "company": "AXA France",
+      "domain": "axa.fr",
+      "address": "313 Terrasses de l'Arche, 92000 Nanterre",
+      "contact_name": "Claire Petit",
+      "datetime": "2026-07-15T10:00:00",
+      "location_type": "physical"
+    },
+    {
+      "id": "m3",
+      "company": "Point equipe interne",
+      "address": "",
+      "contact_name": "",
+      "datetime": "2026-07-14T09:00:00",
+      "location_type": "online"
+    }
+  ]
+}

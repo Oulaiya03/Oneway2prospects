@@ -1,0 +1,9 @@
+{
+  "_comment": "admin_config = ce que remplit l'ecran Admin (ICP + offre). L'agent le consomme.",
+  "icp": {
+    "titles": ["Directeur Marketing", "Directeur Marque Employeur", "Head of Digital", "DRH", "Directeur Communication"],
+    "sectors": ["assurance"],
+    "sizes": ["1000+"]
+  },
+  "offer": "conseil marque & marque employeur"
+}
