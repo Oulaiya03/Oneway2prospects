@@ -42,7 +42,7 @@ const tools: Anthropic.Tool[] = [
 async function runTool(name: string, input: any): Promise<any> {
   try {
     if (name === "fullenrich_people") {
-      const raw = await findDecisionMakers(input.company, input.titles ?? []);
+      const raw = await findDecisionMakers(input.company, input.titles ?? [], 15);
       const seen = new Set<string>();
       const contacts = raw
         .map((c) => ({
@@ -151,14 +151,15 @@ function validateResult(r: any) {
     tour: dedupeByEmail(
       (Array.isArray(r?.tour) ? r.tour : []).filter((t: any) => t && (t.email || t.phone)),
     )
-      .slice(0, 3) // top 3
-      .map((t: any) => ({
+      .slice(0, 12) // on propose la liste (max 12), le commercial pioche
+      .map((t: any, i: number) => ({
         name: t.name ?? "",
         title: t.title ?? "",
         company: t.company ?? "",
         location: t.location ?? "same_company",
         why: t.why ?? "",
         warm: !!t.warm,
+        recommended: i < 3, // top 3 = a voir sur place ; le reste = pipeline / relance
         email: t.email ?? "",
         phone: t.phone ?? "",
         email_status: t.email_status ?? "",
