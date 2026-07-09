@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Sidebar, type View } from "./components/Sidebar";
 import { Dashboard } from "./components/Dashboard";
 import { ProspectSelect } from "./components/ProspectSelect";
@@ -8,7 +9,8 @@ import { SequenceView } from "./components/SequenceView";
 import { BriefView } from "./components/BriefView";
 import { TourneeView } from "./components/TourneeView";
 import { StatsView } from "./components/StatsView";
-import { rdvs, prospects, steps, neighbors, rdvFromNeighbor } from "@/lib/mock";
+import { rdvs, prospects, steps, neighbors, rdvFromNeighbor, type Rdv } from "@/lib/mock";
+import { meetingToRdv } from "@/lib/adapt";
 
 type RunState = "idle" | "running" | "done";
 
@@ -20,12 +22,36 @@ export default function Home() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [briefId, setBriefId] = useState<string | null>(null);
 
+  // Agenda RÉEL Google (si connecté) ; sinon données de démo.
+  const { status } = useSession();
+  const [agenda, setAgenda] = useState<Rdv[] | null>(null);
+  useEffect(() => {
+    if (status !== "authenticated") {
+      setAgenda(null);
+      return;
+    }
+    let cancel = false;
+    fetch("/api/meetings")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancel) setAgenda(d?.connected && Array.isArray(d.meetings) ? d.meetings.map(meetingToRdv) : null);
+      })
+      .catch(() => {
+        if (!cancel) setAgenda(null);
+      });
+    return () => {
+      cancel = true;
+    };
+  }, [status]);
+  const live = status === "authenticated" && agenda !== null;
+  const displayRdvs = live ? (agenda as Rdv[]) : rdvs;
+
   const rdv = useMemo(() => {
-    const real = rdvs.find((r) => r.id === rdvId);
+    const real = displayRdvs.find((r) => r.id === rdvId);
     if (real) return real;
     const n = neighbors.find((x) => x.id === rdvId);
     return n ? rdvFromNeighbor(n) : null;
-  }, [rdvId]);
+  }, [rdvId, displayRdvs]);
   const briefProspect =
     prospects.find((p) => p.id === briefId) ??
     prospects.find((p) => p.id === selectedIds[0]) ??
@@ -68,7 +94,7 @@ export default function Home() {
       <Sidebar view={view} onNavigate={navigate} canProspects={!!rdv} canSequence={selectedIds.length > 0} canBrief={canBrief} />
 
       <main className="flex-1 md:h-screen md:overflow-y-auto">
-        {view === "dashboard" && <Dashboard rdvs={rdvs} onSelectRdv={selectRdv} />}
+        {view === "dashboard" && <Dashboard rdvs={displayRdvs} live={live} onSelectRdv={selectRdv} />}
 
         {view === "tournee" && <TourneeView onSelectRdv={selectRdv} />}
 

@@ -24,12 +24,12 @@ function Kpi({ label, value, unit, Icon, accent }: { label: string; value: strin
 
 function RdvCard({ rdv, onSelect }: { rdv: Rdv; onSelect: () => void }) {
   const m = rdvMeta[rdv.id];
-  const remaining = m.potential - m.contacted;
-  const pct = Math.round((m.contacted / m.potential) * 100);
+  const remaining = m ? m.potential - m.contacted : 0;
+  const pct = m && m.potential ? Math.round((m.contacted / m.potential) * 100) : 0;
   return (
     <button onClick={onSelect} className="card group flex flex-col overflow-hidden p-0 text-left transition-all hover:border-pine/40 hover:shadow-[0_16px_44px_-26px_rgba(16,18,23,0.4)]">
       <div className="p-3 pb-0">
-        <TripMap destination={rdv.address} label={rdv.company.name} distanceKm={m.distanceKm} travelMin={m.travelMin} />
+        <TripMap destination={rdv.address} label={rdv.company.name} distanceKm={m?.distanceKm ?? 0} travelMin={m?.travelMin ?? 0} />
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -54,20 +54,22 @@ function RdvCard({ rdv, onSelect }: { rdv: Rdv; onSelect: () => void }) {
           {rdv.address}
         </div>
 
-        {/* Avancement des contacts */}
-        <div className="mt-3 rounded-lg border border-line bg-raised px-3 py-2.5">
-          <div className="flex items-center justify-between text-[12px]">
-            <span className="text-stone">
-              <b className="font-semibold text-ink">{m.contacted}</b> / {m.potential} contactés
-            </span>
-            <span className="inline-flex items-center gap-1 font-medium text-pine">
-              <Users width={12} height={12} /> {remaining} à contacter
-            </span>
+        {/* Avancement des contacts — seulement quand l'agent a enrichi ce RDV */}
+        {m && (
+          <div className="mt-3 rounded-lg border border-line bg-raised px-3 py-2.5">
+            <div className="flex items-center justify-between text-[12px]">
+              <span className="text-stone">
+                <b className="font-semibold text-ink">{m.contacted}</b> / {m.potential} contactés
+              </span>
+              <span className="inline-flex items-center gap-1 font-medium text-pine">
+                <Users width={12} height={12} /> {remaining} à contacter
+              </span>
+            </div>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
+              <div className="h-full rounded-full bg-pine" style={{ width: `${pct}%` }} />
+            </div>
           </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
-            <div className="h-full rounded-full bg-pine" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
+        )}
 
         <div className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-pine">
           Préparer ce RDV
@@ -78,10 +80,10 @@ function RdvCard({ rdv, onSelect }: { rdv: Rdv; onSelect: () => void }) {
   );
 }
 
-export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id: string) => void }) {
+export function Dashboard({ rdvs, onSelectRdv, live = false }: { rdvs: Rdv[]; onSelectRdv: (id: string) => void; live?: boolean }) {
   const [tab, setTab] = useState<"cards" | "calendar">("cards");
   const growing = rdvs.filter((r) => r.company.growthPct >= 40).length;
-  const totalRemaining = rdvs.reduce((s, r) => s + (rdvMeta[r.id].potential - rdvMeta[r.id].contacted), 0);
+  const totalRemaining = rdvs.reduce((s, r) => { const m = rdvMeta[r.id]; return s + (m ? m.potential - m.contacted : 0); }, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8 md:px-10 md:py-10">
@@ -94,10 +96,10 @@ export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id
       </header>
 
       <div className="anim-fadeup mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4" style={{ animationDelay: "60ms" }}>
-        <Kpi label="RDV physiques" value={String(monthStats.planned)} unit="ce mois" Icon={Calendar2} />
-        <Kpi label="Potentiel agent" value={String(monthStats.potential)} unit="RDV activables" Icon={Bolt} accent />
-        <Kpi label="Contacts à traiter" value={String(totalRemaining)} unit="restants" Icon={Users} />
-        <Kpi label="Comptes en croissance" value={String(growing)} unit="> 40 %/an" Icon={TrendingUp} />
+        <Kpi label="RDV physiques" value={String(live ? rdvs.length : monthStats.planned)} unit="ce mois" Icon={Calendar2} />
+        <Kpi label="Potentiel agent" value={live ? "—" : String(monthStats.potential)} unit="RDV activables" Icon={Bolt} accent />
+        <Kpi label="Contacts à traiter" value={live ? "—" : String(totalRemaining)} unit="restants" Icon={Users} />
+        <Kpi label="Comptes en croissance" value={live ? "—" : String(growing)} unit="> 40 %/an" Icon={TrendingUp} />
       </div>
 
       <div className="anim-fadeup mb-4 flex items-center justify-between" style={{ animationDelay: "120ms" }}>
@@ -118,7 +120,12 @@ export function Dashboard({ rdvs, onSelectRdv }: { rdvs: Rdv[]; onSelectRdv: (id
         </div>
       </div>
 
-      {tab === "cards" ? (
+      {live && rdvs.length === 0 ? (
+        <div className="anim-fadeup card p-8 text-center">
+          <p className="text-[14px] text-ink">Aucun RDV physique dans ton agenda Google (30 prochains jours).</p>
+          <p className="mt-1 text-[12.5px] text-faint">Les visios et les événements sans adresse sont exclus.</p>
+        </div>
+      ) : tab === "cards" ? (
         <div className="anim-fadeup grid grid-cols-1 gap-4 sm:grid-cols-2">
           {rdvs.map((r) => (
             <RdvCard key={r.id} rdv={r} onSelect={() => onSelectRdv(r.id)} />

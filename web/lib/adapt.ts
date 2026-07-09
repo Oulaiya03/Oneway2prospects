@@ -228,6 +228,53 @@ export function adaptRun(json: AgentResult, trigger: MeetingTrigger = {}) {
   };
 }
 
+// Meeting brut (Google Calendar / Graph) → Rdv minimal pour l'affichage de l'agenda.
+// Les champs d'enrichissement (secteur, effectif, contacts, distance) restent vides tant que
+// l'agent n'a pas tourné sur ce compte.
+export function meetingToRdv(m: {
+  id?: string;
+  company?: string;
+  domain?: string;
+  address?: string;
+  contact_name?: string;
+  datetime?: string;
+}): Rdv {
+  const dt = parseDateTime(m.datetime || "");
+  const { first, last } = splitName(m.contact_name || "");
+  const domain = m.domain || "";
+  const name = m.company || (domain ? domain.split(".")[0].replace(/^./, (c) => c.toUpperCase()) : "RDV");
+  return {
+    id: m.id || slug(name),
+    dayShort: dt.dayShort,
+    dayLong: dt.dayLong,
+    time: dt.time,
+    timeEarly: dt.timeEarly,
+    contactFirst: first,
+    contactLast: last,
+    contactRole: "",
+    subject: "",
+    address: m.address || "",
+    kind: "physique",
+    company: {
+      name,
+      domain,
+      sector: "",
+      activity: "",
+      description: "",
+      employees: 0,
+      caM: 0,
+      growthPct: 0,
+      funding: "",
+      founded: 0,
+      hq: m.address || "",
+      website: domain ? `https://${domain}` : "",
+      focus: [],
+      contacts: [],
+    },
+    next: true,
+  };
+}
+
 // ---- Date ISO → libellés FR (jour court/long, heure, heure-15) ----
 const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 const JOURS_ABBR = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
