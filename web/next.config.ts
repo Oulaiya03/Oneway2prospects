@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
-import { join } from "node:path";
 
 const nextConfig: NextConfig = {
-  // Racine = racine du monorepo (parent de web/), pour que Next/Turbopack transpile
-  // agent/ et integrations/ importés par web/app/api/run (câblage front ↔ back réel).
-  turbopack: { root: join(__dirname, "..") },
+  // Racine = web/ (le projet Next lui-même). NE PAS pointer sur le monorepo : ça casse
+  // le React Client Manifest (SSR des composants client → page qui ne charge plus).
+  // L'agent (agent/loop.ts) tourne hors-web via `npm run agent:dev` ; l'UI consomme une fixture.
+  turbopack: { root: __dirname },
 };
 
 export default nextConfig;

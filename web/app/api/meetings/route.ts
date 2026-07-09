@@ -2,7 +2,7 @@
 // Lit l'agenda Google réel (Calendar) et renvoie les RDV physiques.
 // Si l'utilisateur n'est pas connecté à Google -> { connected:false } (le front bascule sur le mock).
 import { getToken } from "next-auth/jwt";
-import { getGoogleMeetings } from "../../../../integrations/google";
+import { getGoogleMeetings } from "../../../lib/google";
 
 export const runtime = "nodejs";
 

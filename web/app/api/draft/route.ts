@@ -1,7 +1,7 @@
 // web/app/api/draft/route.ts
 // Crée un BROUILLON Gmail (pas d'envoi) via l'API Gmail, sur validation du commercial.
 import { getToken } from "next-auth/jwt";
-import { createGmailDraft } from "../../../../integrations/google";
+import { createGmailDraft } from "../../../lib/google";
 
 export const runtime = "nodejs";
 
