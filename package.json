@@ -1,0 +1,17 @@
+{
+  "name": "oneway2prospects-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "agent:dev": "tsx agent/dev.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
+  }
+}
