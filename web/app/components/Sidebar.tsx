@@ -103,7 +103,7 @@ export function Sidebar({
             <Bolt width={17} height={17} />
           </span>
           <div className="leading-tight">
-            <div className="text-[16px] font-semibold tracking-tight text-ink">DeskOffer</div>
+            <div className="text-[16px] font-semibold tracking-tight text-ink">1Way2Prospects</div>
             <div className="text-[11px] text-faint">Pipeline terrain</div>
           </div>
         </div>
