@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* ---- Design tokens : neutres froids, produit SaaS ---- */
+@theme {
+  --color-paper: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-raised: #fbfcfd;
+  --color-ink: #14161b;
+  --color-stone: #585f6d;
+  --color-faint: #99a0ab;
+  --color-line: #e8eaee;
+  --color-line-strong: #d5d9e0;
+
+  --color-pine: #0c6b52;
+  --color-pine-deep: #084f3c;
+  --color-pine-soft: #e2f0ec;
+  --color-pine-ring: #b7dccf;
+
+  --color-hot: #d8492a;
+  --color-hot-soft: #fbe6e0;
+  --color-warm: #b07d12;
+  --color-warm-soft: #f6ecd5;
+  --color-cool: #7f8794;
+
+  --color-console: #14161b;
+  --color-console-panel: #1c1f26;
+  --color-console-fg: #e9ebee;
+  --color-console-dim: #79808c;
+  --color-console-line: #272b33;
+}
+
+@theme inline {
+  --font-display: var(--font-geist);
+  --font-body: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  background: var(--color-paper);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.006em;
+}
+
+::selection {
+  background: var(--color-pine);
+  color: #fff;
+}
+
+/* ---- Classes sémantiques ---- */
+.eyebrow {
+  font-family: var(--font-body), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 18, 23, 0.04);
+}
+
+/* ---- Focus visible ---- */
+:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- Animations ---- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes streamIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+.anim-fadeup { animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-stream { animation: streamIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.cursor-blink { animation: blink 1s steps(1) infinite; }
+.spinner { animation: spin 0.7s linear infinite; }
+.pulse-dot { animation: pulseDot 1.1s ease-in-out infinite; }
+
+.skeleton {
+  background: linear-gradient(90deg, #eceef1 25%, #f6f7f9 37%, #eceef1 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fadeup, .anim-stream, .cursor-blink, .spinner, .pulse-dot, .skeleton {
+    animation: none !important;
+  }
+}
+
+.console-scroll::-webkit-scrollbar { width: 8px; }
+.console-scroll::-webkit-scrollbar-thumb { background: #272b33; border-radius: 8px; }
+.console-scroll::-webkit-scrollbar-track { background: transparent; }
